@@ -4,6 +4,7 @@ const {
   buildSchema
 } = require('graphql');
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
 const {
   server
@@ -12,7 +13,8 @@ const {
   getDBURI
 } = require('./utils');
 const {
-  Event
+  Event,
+  User,
 } = require('./models');
 
 const app = express();
@@ -32,11 +34,22 @@ app.use('/graphql',
         date: String!
       }
 
+      type User {
+        _id: ID!
+        email: String!
+        password: String
+      }
+
       input EventInput {
         title: String!
         description: String!
         price: Float!
         date: String!
+      }
+
+      input UserInput {
+        email: String!
+        password: String!
       }
 
       type RootQuery {
@@ -45,6 +58,7 @@ app.use('/graphql',
 
       type RootMutation {
         createEvent(eventInput: EventInput): Event
+        createUser(userInput: UserInput): User
       }
 
       schema {
@@ -72,11 +86,49 @@ app.use('/graphql',
             description,
             price,
             date: new Date(date),
+            creator: '5ede620d10983b64ab99db8c',
           });
           const result = await event.save();
+          if (result) {
+            User.findById('5ede620d10983b64ab99db8c').then(async user => {
+              if (user) {
+                user.createdEvents.push(result);
+                await user.save();
+              } else {
+                throw new Error("User not Found!");
+              }
+            });
+          }
           return {
             ...result._doc,
           };
+        } catch (err) {
+          console.error(err);
+          throw err;
+        }
+      },
+      async createUser(args) {
+        try {
+          const {
+            email,
+            password
+          } = args.userInput;
+          const userExists = await User.findOne({
+            email,
+          });
+          if (!userExists) {
+            const hashedPassword = await bcrypt.hash(password, 12);
+            const user = new User({
+              email,
+              password: hashedPassword,
+            });
+            const result = await user.save();
+            return {
+              ...result._doc,
+              password: null,
+            }
+          }
+          throw new Error("User already exists with the given email address");
         } catch (err) {
           console.error(err);
           throw err;
@@ -90,6 +142,7 @@ app.use('/graphql',
 mongoose.connect(getDBURI(), {
   useNewUrlParser: true,
   useUnifiedTopology: true,
+  useCreateIndex: true,
 }).then(() => {
   console.info(`Successfully connected to the database`);
   app.listen(PORT, () => {

@@ -4,8 +4,8 @@ const {
   Schema,
 } = mongoose;
 
-const EventSchema = new Schema({
-  title: {
+const UserSchema = new Schema({
+  email: {
     type: String,
     required: true,
     index: true,
@@ -14,28 +14,20 @@ const EventSchema = new Schema({
     max: 100,
     trim: true,
   },
-  description: {
+  password: {
     type: String,
     required: true,
-    min: 1,
-    max: 100,
+    min: 5,
+    max: 50,
     trim: true,
   },
-  price: {
-    type: Number,
-    required: true,
-  },
-  date: {
-    type: Date,
-    required: true,
-  },
-  creator: {
+  createdEvents: [{
     type: Schema.Types.ObjectId,
-    ref: 'User',
-  },
+    ref: 'Event',
+  }],
 }, {
   strict: true,
   timestamps: true,
 });
 
-module.exports = mongoose.model('Event', EventSchema);
+module.exports = mongoose.model('User', UserSchema);
