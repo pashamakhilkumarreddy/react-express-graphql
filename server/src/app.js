@@ -3,20 +3,21 @@ const graphqlHttp = require('express-graphql');
 const {
   buildSchema
 } = require('graphql');
+const mongoose = require('mongoose');
 
-const config = require('./config');
+const {
+  server
+} = require('./config');
+const {
+  getDBURI
+} = require('./utils');
+const {
+  Event
+} = require('./models');
 
 const app = express();
 
-const events = [{
-  _id: Math.random(),
-  title: 'Cena',
-  description: 'Nein',
-  price: 12,
-  date: Date()
-}];
-
-const PORT = config.server.PORT || 3000;
+const PORT = server.PORT || 3000;
 
 app.use(express.json());
 
@@ -35,6 +36,7 @@ app.use('/graphql',
         title: String!
         description: String!
         price: Float!
+        date: String!
       }
 
       type RootQuery {
@@ -51,30 +53,48 @@ app.use('/graphql',
       }
     `),
     rootValue: {
-      events() {
-        return events;
+      async events() {
+        const events = await Event.find({});
+        return events.map(event => ({
+          ...event._doc
+        }));
       },
-      createEvent(args) {
-        const {
-          title,
-          description,
-          price
-        } = args.eventInput;
-        const event = {
-          _id: Math.random().toString(),
-          title,
-          description,
-          price,
-          date: Date()
+      async createEvent(args) {
+        try {
+          const {
+            title,
+            description,
+            price,
+            date,
+          } = args.eventInput;
+          const event = new Event({
+            title,
+            description,
+            price,
+            date: new Date(date),
+          });
+          const result = await event.save();
+          return {
+            ...result._doc,
+          };
+        } catch (err) {
+          console.error(err);
+          throw err;
         }
-        events.push(event);
-        return event;
       }
     },
     graphiql: true
   })
 );
 
-app.listen(PORT, () => {
-  console.info(`Application is running on ${PORT}`);
-});
+mongoose.connect(getDBURI(), {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+}).then(() => {
+  console.info(`Successfully connected to the database`);
+  app.listen(PORT, () => {
+    console.info(`Application is running on ${PORT}`);
+  });
+}).catch((err) => {
+  console.error(`Can't connect to the database`, err);
+})
