@@ -8,6 +8,7 @@ export default () =>
     <Switch>
       <Redirect from="/" to="/login" exact />
       <Route path="/login" component={lazy(() => import('../pages/Login'))} exact />
+      <Route path="/signup" component={lazy(() => import('../pages/SignUp'))} exact />
       <Route path="/events" component={lazy(() => import('../pages/Events'))}  exact />
       <Route path="/bookings" component={lazy(() => import('../pages/Bookings'))} exact />
     </Switch>

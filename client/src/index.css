@@ -19,3 +19,14 @@ body {
 .m-auto {
   margin: auto;
 }
+
+.auth-form {
+  padding: 3rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.2);
+}
+
+.is-v-centered {
+  align-items: center;
+}
