@@ -16,8 +16,11 @@ module.exports = {
       throw err;
     }
   },
-  async createEvent(args) {
+  async createEvent(args, req) {
     try {
+      if (!req.isAuth) {
+        throw new Error('User is not authenticated');
+      }
       const {
         title,
         description,

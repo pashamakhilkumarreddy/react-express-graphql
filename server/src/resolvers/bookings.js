@@ -9,7 +9,10 @@ const {
 } = require('../utils');
 
 module.exports = {
-  async bookings() {
+  async bookings(args, req) {
+    if (!req.isAuth) {
+      throw new Error('User is not authenticated');
+    }
     try {
       const bookings = await Booking.find({});
       return bookings.map((booking) => (transformBooking(booking)));
@@ -20,7 +23,10 @@ module.exports = {
   },
   async bookEvent({
     eventId,
-  }) {
+  }, req) {
+    if (!req.isAuth) {
+      throw new Error('User is not authenticated');
+    }
     try {
       const event = await Event.findOne({
         _id: eventId,
@@ -38,7 +44,10 @@ module.exports = {
   },
   async cancelBooking({
     bookingId,
-  }) {
+  }, req) {
+    if (!req.isAuth) {
+      throw new Error('User is not authenticated');
+    }
     try {
       const booking = await Booking.findById(bookingId).populate('event');
       if (booking) {

@@ -3,6 +3,7 @@
  */
 const {
   User,
+  Event,
 } = require('../models');
 
 const convertDateToString = (date) => new Date(date).toISOString();
