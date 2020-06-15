@@ -4,11 +4,31 @@
   box-sizing: border-box;
 }
 
+@font-face {
+  font-family: 'PTSans-Regular';
+  src: url('./assets/fonts/PTSans/PTSans-Regular.ttf');
+}
+
+@font-face {
+  font-family: 'PTSans-Bold';
+  src: url('./assets/fonts/PTSans/PTSans-Bold.ttf');
+}
+
+@font-face {
+  font-family: 'PTSans-Italic';
+  src: url('./assets/fonts/PTSans/PTSans-Italic.ttf');
+}
+
+@font-face {
+  font-family: 'PTSans-BoldItalic';
+  src: url('./assets/fonts/PTSans/PTSans-BoldItalic.ttf');
+}
+
 body {
   margin: 0;
   padding: 0;
   font-size: 16px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: 'PTSans-Regular', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -21,7 +41,7 @@ body {
 }
 
 .auth-form {
-  padding: 3rem;
+  padding: 2rem 3rem;
   border: 1px solid #ddd;
   border-radius: 6px;
   box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.2);

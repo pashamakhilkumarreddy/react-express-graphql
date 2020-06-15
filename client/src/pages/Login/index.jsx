@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 
+import { AuthContext } from '../../context';
+
 export default class Login extends Component {
   constructor(props) {
     super(props);
@@ -9,6 +11,8 @@ export default class Login extends Component {
       password: '',
     }
   }
+
+  static contextType = AuthContext;
 
   handleOnChange = (e) => {
     const { value, name } = e.target;
@@ -46,11 +50,15 @@ export default class Login extends Component {
           'Content-Type': 'application/json',
         }
       });
-      if (result.status !== 200 || result.status !== 201) {
-        return;
+      if (result.status === 200 || result.status === 201) {
+        const formattedResult = await result.json();
+        const { token, userId, tokenExpiration, } = formattedResult.data.login;
+        if (token && userId && tokenExpiration) {
+          console.log(formattedResult);
+          this.context.login(token, userId, tokenExpiration);
+        }
       }
-      const formattedResult = await result.json();
-      console.log(formattedResult);
+      return;
     } catch (err) {
       console.error(err);
     }
@@ -75,7 +83,7 @@ export default class Login extends Component {
                 onChange={this.handleOnChange} required/>
               </div>
             </div>
-            <div className="field is-grouped">
+            <div className="field is-grouped mt-5">
               <div className="control">
                 <button className="button is-link">Login</button>
               </div>      

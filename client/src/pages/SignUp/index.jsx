@@ -48,11 +48,11 @@ export default class Login extends Component {
           'Content-Type': 'application/json',
         }
       });
-      // if (result.status !== 200 || result.status !== 201) {
-      //   return;
-      // }
-      const formattedResult = await result.json();
-      console.log(formattedResult);
+      if (result.status === 200 || result.status === 201) {
+        const formattedResult = await result.json();
+        console.log(formattedResult);
+      }
+      return;
     } catch (err) {
       console.error(err);
     }
@@ -77,7 +77,7 @@ export default class Login extends Component {
                 onChange={this.handleOnChange} required/>
               </div>
             </div>
-            <div className="field is-grouped">    
+            <div className="field is-grouped mt-5">    
               <div className="control">
                 <button className="button is-link">Sign Up</button>
               </div>      

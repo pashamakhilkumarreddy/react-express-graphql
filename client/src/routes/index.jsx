@@ -3,13 +3,31 @@ import { Switch, Route, Redirect } from 'react-router-dom';
 
 import Loader from '../components/common/Loader';
 
-export default () => 
-  <Suspense fallback={<Loader />}>
-    <Switch>
-      <Redirect from="/" to="/login" exact />
-      <Route path="/login" component={lazy(() => import('../pages/Login'))} exact />
-      <Route path="/signup" component={lazy(() => import('../pages/SignUp'))} exact />
-      <Route path="/events" component={lazy(() => import('../pages/Events'))}  exact />
-      <Route path="/bookings" component={lazy(() => import('../pages/Bookings'))} exact />
-    </Switch>
-  </Suspense>
+import NotFound from '../components/Errors/NotFound';
+
+import { AuthContext } from '../context';
+
+export default () =>
+  <AuthContext.Consumer>
+    {
+      (context) =>
+      <Suspense fallback={<Loader />}>
+        <Switch>
+          { !context.token && <Redirect from="/" to="/login" exact /> }
+          { context.token && <Redirect from="/" to="/events" exact /> }
+          { context.token && <Redirect from="/login" to="/events" exact /> }
+          {
+            !context.token && <Route path="/login" component={lazy(() => import('../pages/Login'))} exact />
+          }          
+          {
+            !context.token && <Route path="/signup" component={lazy(() => import('../pages/SignUp'))} exact />
+          }                    
+          <Route path="/events" component={lazy(() => import('../pages/Events'))}  exact />
+          {
+            context.token && <Route path="/bookings" component={lazy(() => import('../pages/Bookings'))} exact />
+          }  
+          <Route path="*" component={NotFound} />
+        </Switch>
+      </Suspense>
+    }
+  </AuthContext.Consumer>
