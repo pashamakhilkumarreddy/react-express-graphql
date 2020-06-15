@@ -40,7 +40,7 @@ body {
   margin: auto;
 }
 
-.auth-form {
+.form {
   padding: 2rem 3rem;
   border: 1px solid #ddd;
   border-radius: 6px;
@@ -48,5 +48,11 @@ body {
 }
 
 .is-v-centered {
+  align-items: center;
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
   align-items: center;
 }

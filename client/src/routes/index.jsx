@@ -13,7 +13,6 @@ export default () =>
       (context) =>
       <Suspense fallback={<Loader />}>
         <Switch>
-          { !context.token && <Redirect from="/" to="/login" exact /> }
           { context.token && <Redirect from="/" to="/events" exact /> }
           { context.token && <Redirect from="/login" to="/events" exact /> }
           {
@@ -26,6 +25,7 @@ export default () =>
           {
             context.token && <Route path="/bookings" component={lazy(() => import('../pages/Bookings'))} exact />
           }  
+          { !context.token && <Redirect to="/login" exact /> }
           <Route path="*" component={NotFound} />
         </Switch>
       </Suspense>

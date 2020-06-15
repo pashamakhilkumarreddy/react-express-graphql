@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 
+import { baseURL } from '../../utils';
+
 export default class Login extends Component {
   constructor(props) {
     super(props);
@@ -41,7 +43,7 @@ export default class Login extends Component {
             }
           }`
       };
-      const result = await fetch('http://localhost:5000/graphql', {
+      const result = await fetch(`${baseURL}`, {
         method: 'POST',
         body: JSON.stringify(requestBody),
         headers: {
@@ -61,7 +63,7 @@ export default class Login extends Component {
     return (
       <div className="columns is-centered is-vcentered is-mobile">
         <div className="column is-10-mobile is-8-tablet is-8-desktop is-half-widescreen is-7-fullhd">
-          <form className="auth-form" onSubmit={this.handleOnSubmit} autoComplete="off">
+          <form className="form" onSubmit={this.handleOnSubmit} autoComplete="off">
             <h1 className="title has-text-weight-bold has-text-centered">Sign Up</h1>
             <div className="field">
               <label htmlFor="signup-email" className="label">Email</label>

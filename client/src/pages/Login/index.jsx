@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 
 import { AuthContext } from '../../context';
+import { baseURL } from '../../utils';
 
 export default class Login extends Component {
   constructor(props) {
@@ -43,19 +44,21 @@ export default class Login extends Component {
             }
           }`
       };
-      const result = await fetch('http://localhost:5000/graphql', {
+      const result = await fetch(`${baseURL}`, {
         method: 'POST',
         body: JSON.stringify(requestBody),
         headers: {
           'Content-Type': 'application/json',
         }
       });
-      if (result.status === 200 || result.status === 201) {
+      if (result.status === 200) {
         const formattedResult = await result.json();
         const { token, userId, tokenExpiration, } = formattedResult.data.login;
         if (token && userId && tokenExpiration) {
           console.log(formattedResult);
           this.context.login(token, userId, tokenExpiration);
+          this.props.history.push('/events');
+          window.location.reload();
         }
       }
       return;
@@ -67,7 +70,7 @@ export default class Login extends Component {
     return (
       <div className="columns is-centered is-vcentered is-mobile">
         <div className="column is-10-mobile is-8-tablet is-8-desktop is-half-widescreen is-7-fullhd">
-          <form className="auth-form" onSubmit={this.handleOnSubmit} autoComplete="off">
+          <form className="form" onSubmit={this.handleOnSubmit} autoComplete="off">
             <h1 className="title has-text-weight-bold has-text-centered">Login</h1>
             <div className="field">
               <label htmlFor="login-email" className="label">Email</label>
