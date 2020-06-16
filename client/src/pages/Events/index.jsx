@@ -1,23 +1,27 @@
 import React, { Component, Fragment } from 'react';
 import { Helmet } from 'react-helmet';
 
-import AddEvent from './AddEvent';
-import Event from './Event';
 import { checkAllFields, baseURL } from '../../utils';
 import { AuthContext } from '../../context';
 import RippleLoader from '../../components/common/RippleLoader';
+import AddEvent from './AddEvent';
+import Event from './Event';
+import SelectedEvent from './SelectedEvent';
 
 export default class Events extends Component {
   constructor(props) {
     super(props);
     this.state = {
       addingEvent: false,
+      showSelectedEvent: false,
+      selectedEvent: null,
       eventTitle: '',
       eventPrice: '',
       eventDate: '',
       eventDescription: '',
       events: [],
       isLoading: false,
+      isActive: true,
     }
   }
 
@@ -30,7 +34,7 @@ export default class Events extends Component {
   setLoading = (isLoading = false) => {
     this.setState({
       isLoading,
-    })
+    });
   }
 
   toggleAddEventModal = () => {
@@ -42,6 +46,21 @@ export default class Events extends Component {
       eventDescription: '',
       isLoading: false,
     });
+  }
+
+  toggleSelectedEventModal = (e, showSelectedEvent = false) => {
+    this.setState({
+      showSelectedEvent,
+    });
+  }
+
+  showSelectedEvent = (e) => {
+    const { id } = e.target.dataset;
+    const selectedEvent = this.state.events.find((event) => event._id === id);
+    this.setState({
+      selectedEvent,
+    })
+    this.toggleSelectedEventModal(e, true);
   }
 
   handleOnChange = (e) => {
@@ -167,18 +186,72 @@ export default class Events extends Component {
       });
       if (result.status === 200) {
         const formattedResult = await result.json();
-        const {
-          events
-        } = formattedResult.data;
-        this.setState({
-          events,
-        });
+        if (this.state.isActive) {
+          const {
+            events
+          } = formattedResult.data;
+          this.setState({
+            events,
+          });
+        }
       }
     } catch (err) {
       console.error(err);
     } finally {
       this.setLoading(false);
     }
+  }
+
+  bookEvent = async (e) => {
+    try {
+      if (!this.context.token) {
+        this.setState({
+          selectedEvent: null,
+        })
+        return;
+      }
+      e.preventDefault();
+      const id = this.state.selectedEvent._id;
+      if (id) {
+        const requestBody = {
+          query: `
+            mutation {
+              bookEvent (eventId: "${id}") {
+                _id
+                createdAt
+                updatedAt          
+              }
+            }
+          `
+        }
+        const result = await fetch(`${baseURL}`, {
+          method: 'POST',
+          body: JSON.stringify(requestBody),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': this.context.token,
+          }
+        });
+        if (result.status === 200) {
+          const formattedResult = await result.json();
+          const { bookEvent } = formattedResult.data;
+          console.log(bookEvent);
+          this.toggleSelectedEventModal(e, false);
+          this.setState({
+            selectedEvent: null,
+          });
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+    }
+  }
+
+  componentWillUnmount = () => {
+    this.setState({
+      isActive: false,
+    });
   }
   
   render() {
@@ -188,14 +261,18 @@ export default class Events extends Component {
           <title>Events</title>
         </Helmet>
         {
+          this.state.showSelectedEvent && 
+          <SelectedEvent {...this.state.selectedEvent} toggleSelectedEventModal={this.toggleSelectedEventModal} bookEvent={this.bookEvent} />
+        }
+        {
           this.state.addingEvent && this.context.token && <AddEvent {...this.state} handleOnChange={this.handleOnChange}
-          handleOnSubmit={this.handleOnSubmit} toggleAddEventModal={this.toggleAddEventModal} />
+          handleOnSubmit={this.handleOnSubmit} toggleModal={this.toggleAddEventModal} />
         }
         <div className="columns is-vcentered is-mobile is-multiline">
           <div className="column is-12 flex-center">
             {
               this.context.token && 
-              <button className="button is-primary is-light has-text-centered" onClick={this.toggleAddEventModal}>Add Event</button>
+              <button className="button is-primary is-light has-text-centered" onClick={this.toggleAddEventModal}>Add a new Event</button>
             }
           </div>
           <div className={'column is-12 flex-center '  + ( this.state.isLoading ? '': 'is-hidden') }>
@@ -208,7 +285,9 @@ export default class Events extends Component {
             }
           </div>
           {
-            this.state.events.length !== 0 && this.state.events.map((event, index) => <Event {...event} userId={this.context.userId} key={index.toString()} />)
+            this.state.events.length !== 0 && 
+            this.state.events.map((event, index) => 
+            <Event {...event} userId={this.context.userId} key={index.toString()} showSelectedEvent={this.showSelectedEvent} />)
           }
         </div>
       </Fragment>

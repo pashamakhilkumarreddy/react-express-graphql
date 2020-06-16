@@ -57,7 +57,8 @@ body {
   align-items: center;
 }
 
-.event-name {
+.event-name,
+.selected-event .card-header-title {
   font-family: 'PTSans-Bold';
   font-size: 1.5rem;
   margin-bottom: 0.2rem !important;
@@ -65,4 +66,8 @@ body {
 
 .event-time {
   font-family: 'PTSans-Italic';
+}
+
+.selected-event .card-footer button {
+  border-radius: 0;
 }
