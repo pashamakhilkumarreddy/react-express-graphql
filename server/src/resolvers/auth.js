@@ -52,7 +52,7 @@ module.exports = {
         throw new Error('Incorrect credentials');
       }
       const token = jwtSignUser({
-        id: user._id, // eslint-disable-line no-underscore-dangle
+        userId: user._id, // eslint-disable-line no-underscore-dangle
         email: user.email,
       });
       return {

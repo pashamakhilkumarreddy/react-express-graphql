@@ -7,10 +7,10 @@ const {
 const ONE_WEEK = 60 * 60 * 24 * 7;
 
 const jwtSignUser = ({
-  id,
+  userId,
   email,
 }, expires = ONE_WEEK) => jsonwebtoken.sign({
-  id,
+  userId,
   email,
 }, jwt.JWT_SECRET, {
   expiresIn: expires,

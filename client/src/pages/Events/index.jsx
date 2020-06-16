@@ -5,6 +5,7 @@ import AddEvent from './AddEvent';
 import Event from './Event';
 import { checkAllFields, baseURL } from '../../utils';
 import { AuthContext } from '../../context';
+import RippleLoader from '../../components/common/RippleLoader';
 
 export default class Events extends Component {
   constructor(props) {
@@ -74,19 +75,19 @@ export default class Events extends Component {
         this.setLoading(true);
         const requestBody = {
           query: `
-              mutation {
-                createEvent (eventInput: { title: "${title}", price: ${parseFloat(price)}, date: "${date}", description: "${description}" }) {
-                  _id
-                  title
-                  description
-                  date
-                  price
-                  creator {
-                    _id 
-                    email
-                  }
+            mutation {
+              createEvent (eventInput: { title: "${title}", price: ${parseFloat(price)}, date: "${date}", description: "${description}" }) {
+                _id
+                title
+                description
+                date
+                price
+                creator {
+                  _id 
+                  email
                 }
               }
+            }
             `
         }
         const result = await fetch(`${baseURL}`, {
@@ -100,7 +101,7 @@ export default class Events extends Component {
         if (result.status === 200 || result.status === 201) {
           const formattedResult = await result.json();
           const {
-            // creator,
+            creator,
             _id,
             title,
             price,
@@ -118,7 +119,10 @@ export default class Events extends Component {
             this.setState({
               events: [...this.state.events, {
                 ...newEvent,
-                price: parseFloat(newEvent.price)
+                price: parseFloat(newEvent.price),
+                creator: {
+                  ...creator,
+                },
               }],
             });
             this.setState({
@@ -146,6 +150,9 @@ export default class Events extends Component {
               description
               date
               price
+              creator {
+                _id
+              }
             }
           }
         `
@@ -191,13 +198,17 @@ export default class Events extends Component {
               <button className="button is-primary is-light has-text-centered" onClick={this.toggleAddEventModal}>Add Event</button>
             }
           </div>
-          <div className="column is-12 flex-center">
+          <div className={'column is-12 flex-center '  + ( this.state.isLoading ? '': 'is-hidden') }>
             {
-              this.state.isLoading && <h2 className="title has-text-centered has-text-weight-bold">Hold on! We're fetching Events for you...</h2>
+              this.state.isLoading && 
+                <Fragment>
+                  <h2 className="title has-text-centered has-text-weight-bold">Hold on! We're fetching your events...</h2>
+                  <RippleLoader width='100px' height='100px' />
+                </Fragment>
             }
           </div>
           {
-            this.state.events.length !== 0 && this.state.events.map((event, index) => <Event {...event} key={index.toString()} />)
+            this.state.events.length !== 0 && this.state.events.map((event, index) => <Event {...event} userId={this.context.userId} key={index.toString()} />)
           }
         </div>
       </Fragment>

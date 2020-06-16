@@ -11,7 +11,7 @@ const convertDateToString = (date) => new Date(date).toISOString();
 const transformEvent = (event) => ({
   ...event._doc,
   date: convertDateToString(event._doc.date),
-  creator: getUser(event.creator), // eslint-disable-line no-use-before-define
+  creator: getUser(event._doc.creator), // eslint-disable-line no-use-before-define
 });
 
 const transformBooking = (booking) => ({

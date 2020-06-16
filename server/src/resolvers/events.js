@@ -21,6 +21,7 @@ module.exports = {
       if (!req.isAuth) {
         throw new Error('User is not authenticated');
       }
+      const { userId } = req;
       const {
         title,
         description,
@@ -32,18 +33,16 @@ module.exports = {
         description,
         price,
         date: new Date(date),
-        creator: '5ede620d10983b64ab99db8c',
+        creator: userId,
       });
       const result = await event.save();
       if (result) {
-        User.findById('5ede620d10983b64ab99db8c').then(async (user) => {
-          if (user) {
-            user.createdEvents.push(result);
-            await user.save();
-          } else {
-            throw new Error('User not Found!');
-          }
-        });
+        const creator = await User.findById(userId);
+        if (!creator) {
+          throw new Error('User not Found!');
+        }
+        creator.createdEvents.push(result);
+        await creator.save();
         return transformEvent(result);
       }
       return null;
