@@ -1,6 +1,8 @@
 import React, { Component, Fragment } from 'react';
+import { Helmet } from 'react-helmet';
 
-import Modal from '../../components/Modal';
+import AddEvent from './AddEvent';
+import Event from './Event';
 import { checkAllFields, baseURL } from '../../utils';
 import { AuthContext } from '../../context';
 
@@ -24,14 +26,28 @@ export default class Events extends Component {
     this.fetchEvents();
   }
 
-  toggleAddEventModal = () => {
+  setLoading = (isLoading = false) => {
     this.setState({
-      addingEvent: !this.state.addingEvent,
+      isLoading,
     })
   }
 
+  toggleAddEventModal = () => {
+    this.setState({
+      addingEvent: !this.state.addingEvent,
+      eventTitle: '',
+      eventPrice: '',
+      eventDate: '',
+      eventDescription: '',
+      isLoading: false,
+    });
+  }
+
   handleOnChange = (e) => {
-    const { value, name } = e.target;
+    const {
+      value,
+      name
+    } = e.target;
     if (value) {
       this.setState({
         [name]: value,
@@ -55,9 +71,7 @@ export default class Events extends Component {
         description,
       }
       if (checkAllFields(Object.values(event))) {
-        this.setState({
-          isLoading: true,
-        });
+        this.setLoading(true);
         const requestBody = {
           query: `
               mutation {
@@ -85,18 +99,39 @@ export default class Events extends Component {
         });
         if (result.status === 200 || result.status === 201) {
           const formattedResult = await result.json();
-          const { creator, title, price, date, description } = formattedResult.data.createEvent;
-          console.log(creator, title, price, date, description);
+          const {
+            // creator,
+            _id,
+            title,
+            price,
+            date,
+            description
+          } = formattedResult.data.createEvent;
+          const newEvent = {
+            _id,
+            title,
+            price,
+            date,
+            description,
+          }
+          if (checkAllFields(Object.values(newEvent))) {
+            this.setState({
+              events: [...this.state.events, {
+                ...newEvent,
+                price: parseFloat(newEvent.price)
+              }],
+            });
+            this.setState({
+              addingEvent: false,
+            });
+          }
         }
         return;
       }
     } catch (err) {
       console.error(err);
-    }
-    finally {
-      this.setState({
-        isLoading: false,
-      });
+    } finally {
+      this.setLoading(false);
     }
   }
 
@@ -115,9 +150,7 @@ export default class Events extends Component {
           }
         `
       }
-      this.setState({
-        isLoading: true,
-      })
+      this.setLoading(true);
       const result = await fetch(`${baseURL}`, {
         method: 'POST',
         body: JSON.stringify(requestBody),
@@ -127,99 +160,45 @@ export default class Events extends Component {
       });
       if (result.status === 200) {
         const formattedResult = await result.json();
-        const { events } = this.formattedResult.data;
+        const {
+          events
+        } = formattedResult.data;
         this.setState({
           events,
         });
-        console.log(formattedResult);
       }
-    } catch(err) {
+    } catch (err) {
       console.error(err);
-    }
-    finally {
-      this.setState({
-        isLoading: false,
-      });
+    } finally {
+      this.setLoading(false);
     }
   }
   
   render() {
     return (
       <Fragment>
+        <Helmet>
+          <title>Events</title>
+        </Helmet>
         {
-          this.state.addingEvent && this.context.token && 
-          (
-            <Modal title="Create a new Event" toggleAddEventModal={this.toggleAddEventModal}>
-              <form className="form" onSubmit={this.handleOnSubmit} autoComplete="off">
-                <div className="field">
-                  <label htmlFor="event-title" className="label">Title</label>
-                  <div className="control">
-                    <input type="text" id="event-title" name="eventTitle" className="input"
-                    placeholder="Please enter the event title" value={this.state.eventTitle} required onChange={this.handleOnChange} />
-                  </div>
-                </div>
-                <div className="field">
-                  <label htmlFor="event-price" className="label">Price</label>
-                  <div className="control">
-                    <input type="number" id="event-price" name="eventPrice" className="input"
-                    placeholder="Please enter the event price" value={this.state.eventPrice} required onChange={this.handleOnChange} />
-                  </div>
-                </div>
-                <div className="field">
-                  <label htmlFor="event-date" className="label">Date</label>
-                  <div className="control">
-                    <input type="date" id="event-date" name="eventDate" className="input"
-                    placeholder="Please enter the event date" value={this.state.eventDate} required onChange={this.handleOnChange} />
-                  </div>
-                </div>
-                <div className="field">
-                  <label htmlFor="event-description" className="label">Description</label>
-                  <div className="control">
-                    <textarea name="eventDescription" id="event-description" className="textarea" cols="30" rows="10"
-                    value={this.state.eventDescription} required placeholder="Please enter the event description" onChange={this.handleOnChange}>
-                    </textarea>
-                  </div>
-                </div>
-                <div className="buttons">
-                  <button className={'button is-success' + (this.state.isLoading ? 'is-loading': '')}>Create</button>
-                  <button className="button is-danger is-light" onClick={this.toggleAddEventModal}>Cancel</button>
-                </div>
-              </form>
-            </Modal>
-          )
+          this.state.addingEvent && this.context.token && <AddEvent {...this.state} handleOnChange={this.handleOnChange}
+          handleOnSubmit={this.handleOnSubmit} toggleAddEventModal={this.toggleAddEventModal} />
         }
         <div className="columns is-vcentered is-mobile is-multiline">
-            <div className="column is-12 flex-center">
-              {
-                this.context.token && 
-                <button className="button is-primary is-light has-text-centered" onClick={this.toggleAddEventModal}>Add Event</button>
-              }
-            </div>
-            <div className="column is-12 flex-center">
-              {
-                this.state.isLoading && <h2 className="title has-text-centered has-text-weight-bold">Loading...</h2>
-              }
-            </div>
+          <div className="column is-12 flex-center">
             {
-              this.state.events.length !== 0 && (
-                this.state.events.map((event, index) =>                 
-                  <div className="column is-10-mobile is-4-tablet is-4-desktop is-4-widescreen is-3-fullhd" key={index.toString()}>
-                    <div className="events mt-4">
-                      <div className="event box">
-                        <article className="media">
-                          <div className="media-content">
-                            <div className="content">
-                              {event.title}
-                            </div>
-                          </div>
-                        </article>
-                      </div>
-                    </div>
-                  </div>
-                )
-              )
+              this.context.token && 
+              <button className="button is-primary is-light has-text-centered" onClick={this.toggleAddEventModal}>Add Event</button>
             }
-
+          </div>
+          <div className="column is-12 flex-center">
+            {
+              this.state.isLoading && <h2 className="title has-text-centered has-text-weight-bold">Hold on! We're fetching Events for you...</h2>
+            }
+          </div>
+          {
+            this.state.events.length !== 0 && this.state.events.map((event, index) => <Event {...event} key={index.toString()} />)
+          }
         </div>
       </Fragment>
     )
