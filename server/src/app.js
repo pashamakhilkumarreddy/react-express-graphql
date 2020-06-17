@@ -13,7 +13,9 @@ const {
 } = require('./utils');
 const graphQLSchema = require('./schema');
 const graphQLResolvers = require('./resolvers');
-const { checkAuthToken } = require('./middleware');
+const {
+  checkAuthToken,
+} = require('./middleware');
 
 const app = express();
 

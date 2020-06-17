@@ -57,7 +57,7 @@ body {
   align-items: center;
 }
 
-.event-name,
+.event-title,
 .selected-event .card-header-title {
   font-family: 'PTSans-Bold';
   font-size: 1.5rem;
@@ -70,4 +70,17 @@ body {
 
 .selected-event .card-footer button {
   border-radius: 0;
+}
+
+.booking.box {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@media screen and (max-width: 1024px) {
+  .columns:not(.is-desktop) {
+    margin: 0 1rem;
+  }
 }

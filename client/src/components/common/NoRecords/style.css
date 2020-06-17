@@ -1,0 +1,8 @@
+.column {
+  max-height: 750px;
+  overflow: hidden;
+}
+
+img {
+  height: inherit;
+}

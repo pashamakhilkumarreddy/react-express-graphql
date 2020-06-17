@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 
 import Modal from '../../components/Modal';
 
-const AddEvent = ({eventTitle, eventDescription, eventPrice, eventDate, isLoading, handleOnChange, handleOnSubmit, toggleAddEventModal}) => {
+const NewEvent = ({eventTitle, eventDescription, eventPrice, eventDate, isLoading, handleOnChange, handleOnSubmit, toggleAddEventModal}) => {
   return (
-    <Modal title="Create a new Event" toggleAddEventModal={toggleAddEventModal}>
+    <Modal title="Create a new Event" toggleModal={toggleAddEventModal}>
       <form className="form" onSubmit={handleOnSubmit} autoComplete="off">
         <div className="field">
           <label htmlFor="event-title" className="label">Title</label>
@@ -49,7 +49,7 @@ const AddEvent = ({eventTitle, eventDescription, eventPrice, eventDate, isLoadin
   )
 }
 
-AddEvent.propTypes = {
+NewEvent.propTypes = {
   eventTitle: PropTypes.string.isRequired,
   eventDescription: PropTypes.string.isRequired,
   eventPrice: PropTypes.any.isRequired,
@@ -60,4 +60,4 @@ AddEvent.propTypes = {
   toggleAddEventModal: PropTypes.func.isRequired,
 }
 
-export default AddEvent;
+export default NewEvent;

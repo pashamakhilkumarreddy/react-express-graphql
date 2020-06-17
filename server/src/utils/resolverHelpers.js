@@ -15,7 +15,7 @@ const transformEvent = (event) => ({
 });
 
 const transformBooking = (booking) => ({
-  ...booking.doc,
+  ...booking._doc,
   user: getUser(booking._doc.user), // eslint-disable-line no-use-before-define
   event: getEventDetails(booking._doc.event), // eslint-disable-line no-use-before-define
   createdAt: convertDateToString(booking._doc.createdAt),

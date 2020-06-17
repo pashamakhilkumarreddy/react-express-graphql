@@ -4,15 +4,16 @@ import { Helmet } from 'react-helmet';
 import { checkAllFields, baseURL } from '../../utils';
 import { AuthContext } from '../../context';
 import RippleLoader from '../../components/common/RippleLoader';
-import AddEvent from './AddEvent';
+import NewEvent from './NewEvent';
 import Event from './Event';
 import SelectedEvent from './SelectedEvent';
+import NoRecords from '../../components/common/NoRecords';
 
 export default class Events extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      addingEvent: false,
+      isAddingEvent: false,
       showSelectedEvent: false,
       selectedEvent: null,
       eventTitle: '',
@@ -39,7 +40,7 @@ export default class Events extends Component {
 
   toggleAddEventModal = () => {
     this.setState({
-      addingEvent: !this.state.addingEvent,
+      isAddingEvent: !this.state.isAddingEvent,
       eventTitle: '',
       eventPrice: '',
       eventDate: '',
@@ -145,7 +146,7 @@ export default class Events extends Component {
               }],
             });
             this.setState({
-              addingEvent: false,
+              isAddingEvent: false,
             });
           }
         }
@@ -255,39 +256,42 @@ export default class Events extends Component {
   }
   
   render() {
+    const { isLoading, events, showSelectedEvent, selectedEvent, isAddingEvent } = this.state;
+    const { token, userId } = this.context;
     return (
       <Fragment>
         <Helmet>
           <title>Events</title>
         </Helmet>
         {
-          this.state.showSelectedEvent && 
-          <SelectedEvent {...this.state.selectedEvent} toggleSelectedEventModal={this.toggleSelectedEventModal} bookEvent={this.bookEvent} />
+          showSelectedEvent && 
+          <SelectedEvent {...selectedEvent} toggleSelectedEventModal={this.toggleSelectedEventModal} bookEvent={this.bookEvent} />
         }
         {
-          this.state.addingEvent && this.context.token && <AddEvent {...this.state} handleOnChange={this.handleOnChange}
-          handleOnSubmit={this.handleOnSubmit} toggleModal={this.toggleAddEventModal} />
+          isAddingEvent && token && 
+          <NewEvent {...this.state} handleOnChange={this.handleOnChange}
+          handleOnSubmit={this.handleOnSubmit} toggleAddEventModal={this.toggleAddEventModal} />
         }
-        <div className="columns is-vcentered is-mobile is-multiline">
-          <div className="column is-12 flex-center">
-            {
-              this.context.token && 
-              <button className="button is-primary is-light has-text-centered" onClick={this.toggleAddEventModal}>Add a new Event</button>
-            }
-          </div>
-          <div className={'column is-12 flex-center '  + ( this.state.isLoading ? '': 'is-hidden') }>
-            {
-              this.state.isLoading && 
-                <Fragment>
-                  <h2 className="title has-text-centered has-text-weight-bold">Hold on! We're fetching your events...</h2>
-                  <RippleLoader width='100px' height='100px' />
-                </Fragment>
-            }
-          </div>
+        <div className="columns is-vcentered is-mobile is-multiline">         
           {
-            this.state.events.length !== 0 && 
-            this.state.events.map((event, index) => 
-            <Event {...event} userId={this.context.userId} key={index.toString()} showSelectedEvent={this.showSelectedEvent} />)
+            token && 
+            <div className="column is-12 flex-center">
+              <button className="button is-primary is-light has-text-centered" onClick={this.toggleAddEventModal} disabled={isLoading}>Add a new Event</button>
+            </div>
+          }
+         
+          {
+            isLoading && !isAddingEvent && 
+              <div className={'column is-12 flex-center'}>
+                <h2 className="title has-text-centered has-text-weight-bold">Hold on! We're fetching your events...</h2>
+                <RippleLoader width='100px' height='100px' />
+              </div>
+          }
+          {
+            events.length ?
+            events.map((event, index) => 
+            <Event {...event} userId={userId} key={index.toString()} showSelectedEvent={this.showSelectedEvent} />) :
+            <NoRecords title="Oops! You have no events." maxHeight="700px" />
           }
         </div>
       </Fragment>

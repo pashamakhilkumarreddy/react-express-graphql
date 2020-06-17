@@ -4,6 +4,8 @@ import PropTypes from 'prop-types';
 import Modal from '../../components/Modal';
 
 const SelectedEvent = ({ _id: id, title, price, description, date, toggleSelectedEventModal, bookEvent }) => {
+  const dateString = new Date(date).toDateString();
+  const UTCDate = new Date(date).toUTCString();
   return (
     <Modal title={title} toggleModal={toggleSelectedEventModal}>
       <div className="card selected-event" data-id={id}>
@@ -19,7 +21,7 @@ const SelectedEvent = ({ _id: id, title, price, description, date, toggleSelecte
           </div>
           <div className="content">
             <p className="event-description">{description}</p>
-            <time dateTime={new Date(date).toDateString()} title={new Date(date).toDateString()} className="event-time">{new Date(date).toUTCString()}</time>
+            <time dateTime={dateString} title={dateString} className="event-time">{UTCDate}</time>
           </div>
         </div>
         <footer className="card-footer">
