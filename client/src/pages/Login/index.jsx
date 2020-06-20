@@ -37,13 +37,17 @@ export default class Login extends Component {
       }
       const requestBody = {
         query: `
-          query {
-            login(email: "${email}", password: "${password}") {
+          query Login($email: String!, $password: String!) {
+            login(email: $email, password: $password) {
               userId
               token
               tokenExpiration
             }
-          }`
+          }`,
+          variables: {
+            email,
+            password,
+          }
       };
       const result = await fetch(`${baseURL}`, {
         method: 'POST',
@@ -56,7 +60,6 @@ export default class Login extends Component {
         const formattedResult = await result.json();
         const { token, userId, tokenExpiration, } = formattedResult.data.login;
         if (token && userId && tokenExpiration) {
-          console.log(formattedResult);
           this.context.login(token, userId, tokenExpiration);
           this.props.history.push('/events');
           window.location.reload();

@@ -95,8 +95,8 @@ export default class Events extends Component {
         this.setLoading(true);
         const requestBody = {
           query: `
-            mutation {
-              createEvent (eventInput: { title: "${title}", price: ${parseFloat(price)}, date: "${date}", description: "${description}" }) {
+            mutation CreateEvent ($title: String!, $price: Float!, $date: String!, $description: String!) {
+              createEvent (eventInput: { title: $title, price: $price, date: $date, description: $description }) {
                 _id
                 title
                 description
@@ -108,7 +108,13 @@ export default class Events extends Component {
                 }
               }
             }
-            `
+            `,
+            variables: {
+              title,
+              price: parseFloat(price),
+              date,
+              description,
+            }
         }
         const result = await fetch(`${baseURL}`, {
           method: 'POST',
@@ -216,14 +222,17 @@ export default class Events extends Component {
       if (id) {
         const requestBody = {
           query: `
-            mutation {
-              bookEvent (eventId: "${id}") {
+            mutation BookEvent($id: ID!) {
+              bookEvent (eventId: $id) {
                 _id
                 createdAt
                 updatedAt          
               }
             }
-          `
+          `,
+          variables: {
+            id,
+          }
         }
         const result = await fetch(`${baseURL}`, {
           method: 'POST',

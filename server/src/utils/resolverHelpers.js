@@ -25,6 +25,7 @@ async function getEvents(eventIds) {
         $in: eventIds,
       },
     });
+    events.sort((a, b) => eventIds.indexOf(a.toString()) - eventIds.indexOf(b.toString()));
     return events.map((event) => transformEvent(event));
   } catch (err) {
     console.error(err);
@@ -55,11 +56,25 @@ async function getUser(userID) {
   }
 }
 
-const transformEvent = (event) => ({
-  ...event._doc,
-  date: convertDateToString(event._doc.date),
-  creator: getUser(event._doc.creator),
-});
+const transformEvent = async (event) => {
+  try {
+    if (event._doc) {
+      return {
+        ...event._doc,
+        date: convertDateToString(event._doc.date),
+        creator: getUser(event._doc.creator),
+      };
+    }
+    return {
+      ...event,
+      date: convertDateToString(event.date),
+      creator: getUser(event.creator),
+    };
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
 
 const transformBooking = (booking) => ({
   ...booking._doc,

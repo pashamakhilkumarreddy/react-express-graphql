@@ -6,6 +6,7 @@ import { AuthContext } from '../../context';
 import RippleLoader from '../../components/common/RippleLoader';
 import Booking from './Booking';
 import NoRecords from '../../components/common/NoRecords';
+import BookingsChart from './BookingsChart';
 
 export default class Bookings extends Component {
   constructor(props) {
@@ -13,6 +14,7 @@ export default class Bookings extends Component {
     this.state = {
       isLoading: false,
       bookings: [],
+      outputType: 'bookings',
     }
   }
 
@@ -37,6 +39,7 @@ export default class Bookings extends Component {
                 _id
                 title
                 date
+                price
               }
             }
           }
@@ -55,8 +58,7 @@ export default class Bookings extends Component {
         const { bookings } = formattedResponse.data;
         this.setState({
           bookings,
-        })
-        console.log(bookings);
+        });
       }
     } catch (err) {
       console.error(err);
@@ -72,12 +74,15 @@ export default class Bookings extends Component {
       if (bookingId) {
         const requestBody = {
           query: `
-            mutation {
-              cancelBooking (bookingId: "${bookingId}") {
+            mutation CancelBooking($id: ID!) {
+              cancelBooking(bookingId: $id) {
                 _id
               }
             }
-          `
+          `,
+          variables: {
+            id: bookingId,
+          }
         };
         const result = await fetch(`${baseURL}`, {
           method: 'POST',
@@ -90,12 +95,11 @@ export default class Bookings extends Component {
         if (result.status === 200) {
           const formattedResponse = await result.json();
           this.setState(prevState => {
-            const updatedBookings = prevState.bookings.find(booking => booking._id !== bookingId);
+            const updatedBookings = prevState.bookings.filter(booking => booking._id !== bookingId);
             return {
               bookings: updatedBookings,
             }
           });
-          console.log(formattedResponse);
         }
       }
     } catch(err) {
@@ -103,26 +107,51 @@ export default class Bookings extends Component {
     }
   }
 
+  selectOutputType = (outputType) => {
+    const type = (outputType === 'charts') ? 'charts': 'bookings';
+    this.setState({
+      outputType: type,
+    });
+  }
+
   render() {
-    const { isLoading, bookings } = this.state;
+    const { isLoading, bookings, outputType } = this.state;
     return (
       <Fragment>
         <Helmet>
           <title>Bookings</title>
         </Helmet>
+        <div className={'buttons flex-center ' + (outputType === 'charts' ? 'mb-6': '')}>
+          <button className="button is-info" onClick={this.selectOutputType.bind(this, 'bookings')}>Bookings</button>
+          <button className="button is-light is-info" onClick={this.selectOutputType.bind(this, 'charts')}>Charts</button>
+        </div>
         <div className="columns is-centered is-vcentered is-mobile is-multiline">          
           {
-            isLoading && 
-            <div className="column is-12 flex-center">
+            isLoading && ((outputType === 'bookings') ? 
+            (<div className="column is-12 flex-center">
               <h2 className="title has-text-centered has-text-weight-bold">Hold on! We're fetching your bookings...</h2>
               <RippleLoader height='100px' />
-            </div>
+            </div>):
+            (
+              <div className="column is-12 flex-center">
+                <h2 className="title has-text-centered has-text-weight-bold">Hold on! We're fetching your charts...</h2>
+                <RippleLoader height='100px' />
+              </div>
+            ))
           }
           {
-            !isLoading && (bookings.length ?
+            !isLoading && (outputType === 'bookings') && (bookings.length ?
             bookings.map((booking, index) => <Booking {...booking} key={index.toString()} cancelBooking={this.cancelBooking} />) :
             <NoRecords title="Oops! You have no bookings" />)
           }
+
+          {
+            !isLoading && (outputType === 'charts') && 
+            (
+              <BookingsChart bookings={bookings} />
+            )
+          }
+
         </div>
       </Fragment>
     )

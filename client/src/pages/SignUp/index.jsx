@@ -37,12 +37,16 @@ export default class Login extends Component {
       }
       const requestBody = {
         query: `
-          mutation {
-            createUser(userInput: { email: "${email}", password: "${password}" }) {
+          mutation CreateUser($email: String!, $password: String!) {
+            createUser(userInput: { email: $email, password: $password }) {
               _id
               email
             }
-          }`
+          }`,
+          variables: {
+            email,
+            password,
+          }
       };
       const result = await fetch(`${baseURL}`, {
         method: 'POST',
@@ -53,7 +57,10 @@ export default class Login extends Component {
       });
       if (result.status === 200 || result.status === 201) {
         const formattedResult = await result.json();
-        console.log(formattedResult);
+        const { createUser } = formattedResult.data;
+        if (createUser && createUser.email) {
+          this.props.history.push('/login');
+        }
       }
       return;
     } catch (err) {
