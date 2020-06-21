@@ -12,7 +12,7 @@
   z-index: 9999;
 }
 
-.loader-container > .loader {
+.loader-container>.loader {
   border: 0.5rem solid #f3f3f3;
   border-radius: 50%;
   border-top: 0.5rem solid hsl(204, 86%, 53%);
@@ -26,6 +26,7 @@
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 import NotFoundImage from '../../../assets/images/NotFound.jpg';
 
@@ -14,4 +14,4 @@ const NotFound = () => {
   )
 }
 
-export default NotFound;
+export default memo(NotFound);

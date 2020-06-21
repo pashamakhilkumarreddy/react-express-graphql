@@ -36,7 +36,7 @@ const Event = ({ _id: id, title, description, price, date, creator: { _id: creat
 }
 
 Event.propTypes = {
-  userId: PropTypes.string.isRequired,
+  userId: PropTypes.string,
   _id: PropTypes.string.isRequired,
   creatorID: PropTypes.string,
   title: PropTypes.string.isRequired,

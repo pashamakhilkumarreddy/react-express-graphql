@@ -11,9 +11,7 @@ const Modal = ({ title, toggleModal, children }) => {
           <button className="delete" aria-label="close" title="Close Modal" onClick={toggleModal}></button>
         </header>
         <section className="modal-card-body">
-          {
-            children
-          }
+          {children}
         </section>
       </div>
     </div>

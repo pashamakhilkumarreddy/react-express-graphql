@@ -94,6 +94,7 @@ export default class Bookings extends Component {
         });
         if (result.status === 200) {
           const formattedResponse = await result.json();
+          console.info(formattedResponse);
           this.setState(prevState => {
             const updatedBookings = prevState.bookings.filter(booking => booking._id !== bookingId);
             return {
@@ -146,12 +147,8 @@ export default class Bookings extends Component {
           }
 
           {
-            !isLoading && (outputType === 'charts') && 
-            (
-              <BookingsChart bookings={bookings} />
-            )
+            !isLoading && (outputType === 'charts') && <BookingsChart bookings={bookings} />
           }
-
         </div>
       </Fragment>
     )

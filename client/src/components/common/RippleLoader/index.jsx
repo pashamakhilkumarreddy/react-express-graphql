@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 
 import './ripple-loader.css';
@@ -14,4 +14,4 @@ RippleLoader.propTypes = {
   height: PropTypes.string,
 }
 
-export default RippleLoader;
+export default memo(RippleLoader);

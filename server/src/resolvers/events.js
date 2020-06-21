@@ -21,7 +21,9 @@ module.exports = {
       if (!req.isAuth) {
         throw new Error('User is not authenticated');
       }
-      const { userId } = req;
+      const {
+        userId,
+      } = req;
       const {
         title,
         description,
